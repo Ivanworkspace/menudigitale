@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// Tenant images (logos, covers, product photos) are public: menus are public.
+// Uploads only happen server-side (Admin SDK) after validation/conversion.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /tenants/{tenantId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

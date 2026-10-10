@@ -1,0 +1,58 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// Security model
+//  * ALL writes go through the Next.js server (Admin SDK, which bypasses these
+//    rules) after authorization and server-side validation of prices etc.
+//  * Browsers only READ, to receive realtime updates, using short-lived
+//    Firebase custom tokens minted by the server with these claims:
+//      kind = 'staff' | 'guest', tenantId, role (staff), tableSessionId (guest)
+//  * Anything not explicitly allowed below is denied (secrets, sessions,
+//    credentials, audit logs, platform data).
+// ---------------------------------------------------------------------------
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function authed() {
+      return request.auth != null;
+    }
+    function isStaffOf(tenantId) {
+      return authed() && request.auth.token.kind == 'staff' && request.auth.token.tenantId == tenantId;
+    }
+    function isGuestOf(tenantId) {
+      return authed() && request.auth.token.kind == 'guest' && request.auth.token.tenantId == tenantId;
+    }
+
+    // Collections staff devices may subscribe to in realtime.
+    function staffReadable(col) {
+      return col in [
+        'staff', 'role_permissions',
+        'menus', 'categories', 'products', 'modifier_groups',
+        'rooms', 'tables', 'table_sessions', 'orders',
+        'service_requests', 'notifications', 'staff_messages',
+        'reservations', 'stock_alerts', 'bills'
+      ];
+    }
+
+    match /tenants/{tenantId} {
+      allow read: if isStaffOf(tenantId);
+
+      match /{col}/{docId} {
+        allow read: if isStaffOf(tenantId) && staffReadable(col);
+      }
+
+      // A table guest only sees their own table session and its orders.
+      match /table_sessions/{sessionId} {
+        allow read: if isGuestOf(tenantId) && request.auth.token.tableSessionId == sessionId;
+      }
+      match /orders/{orderId} {
+        allow read: if isGuestOf(tenantId)
+          && resource.data.tableSessionId == request.auth.token.tableSessionId;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
