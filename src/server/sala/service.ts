@@ -49,16 +49,29 @@ export async function createTable(tenant: Tenant, input: { roomId: string; label
   if (!dup.empty) throw new UserError(`Esiste già un tavolo "${input.label}".`);
   const ref = refs.tables(t).doc();
   const qrToken = randomToken(18);
-  const count = (await refs.tables(t).where("roomId", "==", input.roomId).count().get()).data().count;
+  const inRoom = (await refs.tables(t).where("roomId", "==", input.roomId).get()).docs.map((d) => d.data() as Table);
+  const count = inRoom.length;
+  // First free spot on a 130px grid, so a new table never lands on another one.
+  const w = input.shape === "rect" ? 160 : 100;
+  const free = (x: number, y: number) => inRoom.every((o) => x + w + 20 <= o.x || o.x + o.w + 20 <= x || y + 120 <= o.y || o.y + o.h + 20 <= y);
+  let spot = { x: 20, y: 20 };
+  search: for (let row = 0; row < 20; row++) {
+    for (let col = 0; col < 7; col++) {
+      if (free(20 + col * 130, 20 + row * 130)) {
+        spot = { x: 20 + col * 130, y: 20 + row * 130 };
+        break search;
+      }
+    }
+  }
   const batch = db().batch();
   batch.set(ref, {
     roomId: input.roomId,
     label: input.label,
     seats: input.seats,
     shape: input.shape,
-    x: input.x ?? 20 + (count % 6) * 130,
-    y: input.y ?? 20 + Math.floor(count / 6) * 130,
-    w: input.shape === "rect" ? 160 : 100,
+    x: input.x ?? spot.x,
+    y: input.y ?? spot.y,
+    w,
     h: 100,
     qrToken,
     active: true,

@@ -49,8 +49,9 @@ Ogni modifica è visibile ai clienti entro pochi secondi.
 
 ## 4. Sala, tavoli e QR
 
-*Sala e tavoli* → **Modifica sala**: crea le sale (interno, dehors…), aggiungi i tavoli e trascinali per
-riprodurre la disposizione reale. **QR di tutti i tavoli** stampa i segnaposto da mettere sui tavoli.
+*Sala e tavoli* → **Modifica sala**: crea le sale (interno, dehors…) e aggiungi i tavoli. Trascina un tavolo per
+spostarlo, toccalo per cambiarne nome, posti o forma (o eliminarlo), poi premi **Salva disposizione**
+(**Annulla** scarta gli spostamenti). **QR di tutti i tavoli** stampa i segnaposto da mettere sui tavoli.
 
 Durante il servizio tocca un tavolo per: aprirlo (coperti e cameriere), ordinare, mandare la **uscita successiva**
 («Segue»), spostarlo, unirlo o separarlo, andare al conto, chiuderlo. I colori indicano lo stato: libero, occupato,

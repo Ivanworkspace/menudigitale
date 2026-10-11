@@ -115,7 +115,7 @@ async function main() {
       coverChargeCents: 250,
       servicePctBp: 0,
       orderProtection: {
-        requireOpenTable: true, autoOpenOnScan: false, geofence: "block",
+        requireOpenTable: true, autoOpenOnScan: false, geofence: "waiter_confirm",
         tableCode: false, manualFirstApproval: false, maxOrdersPerMinute: 3,
       },
       openingHours: [

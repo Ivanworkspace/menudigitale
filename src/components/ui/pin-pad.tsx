@@ -69,8 +69,8 @@ export function PinPad({
           />
         ))}
       </div>
-      <p className={cn("mb-4 h-5 text-center text-sm", error ? "text-red-600" : "text-transparent")} role="alert">
-        {error ?? "."}
+      <p className={cn("mb-4 min-h-5 text-center text-sm", error ? "text-red-600" : "text-slate-500")} role="alert">
+        {error ?? `Inserisci il PIN (da ${minLength} a ${maxLength} cifre) e premi OK`}
       </p>
       <div className="grid grid-cols-3 gap-3">
         {keys.map((k) => (

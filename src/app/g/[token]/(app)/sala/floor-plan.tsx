@@ -88,26 +88,40 @@ export function FloorPlan(props: {
 
   // --- drag & drop in edit mode -------------------------------------------
   const canvasRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ id: string; dx: number; dy: number } | null>(null);
+  const drag = useRef<{ id: string; dx: number; dy: number; sx: number; sy: number; moved: boolean } | null>(null);
   const pos = (t: Table) => positions[t.id] ?? { x: t.x, y: t.y };
 
-  const onPointerDown = (e: React.PointerEvent, t: Table) => {
+  // Edit mode: drag a table to move it; a tap without movement opens its form.
+  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>, t: Table) => {
     if (!edit) return;
+    e.preventDefault();
     const rect = canvasRef.current!.getBoundingClientRect();
     const p = pos(t);
-    drag.current = { id: t.id, dx: e.clientX - rect.left - p.x, dy: e.clientY - rect.top - p.y };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    drag.current = { id: t.id, dx: e.clientX - rect.left - p.x, dy: e.clientY - rect.top - p.y, sx: e.clientX, sy: e.clientY, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current) return;
+    const d = drag.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return;
+    d.moved = true;
     const rect = canvasRef.current!.getBoundingClientRect();
     const snap = (v: number) => Math.round(v / 10) * 10;
     setPositions((p) => ({
       ...p,
-      [drag.current!.id]: { x: Math.max(0, snap(e.clientX - rect.left - drag.current!.dx)), y: Math.max(0, snap(e.clientY - rect.top - drag.current!.dy)) },
+      [d.id]: { x: Math.max(0, snap(e.clientX - rect.left - d.dx)), y: Math.max(0, snap(e.clientY - rect.top - d.dy)) },
     }));
   };
-  const onPointerUp = () => (drag.current = null);
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    drag.current = null;
+    if (d && !d.moved) {
+      const t = tables.find((x) => x.id === d.id);
+      if (t) setTableForm({ id: t.id, label: t.label, seats: t.seats, shape: t.shape });
+    }
+    if (e.currentTarget instanceof HTMLElement && e.currentTarget.hasPointerCapture?.(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+  const dirty = Object.keys(positions).length > 0;
 
   const height = Math.max(520, ...roomTables.map((t) => pos(t).y + t.h + 40));
   const width = Math.max(900, ...roomTables.map((t) => pos(t).x + t.w + 40));
@@ -129,7 +143,18 @@ export function FloorPlan(props: {
                 </Button>
                 <Button
                   size="sm"
-                  disabled={pending}
+                  variant="ghost"
+                  onClick={() => {
+                    if (dirty && !confirm("Annullare gli spostamenti non salvati?")) return;
+                    setPositions({});
+                    setEdit(false);
+                  }}
+                >
+                  Annulla
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={pending || !dirty}
                   onClick={() =>
                     run(() => saveLayout(token, Object.entries(positions).map(([id, p]) => ({ id, ...p }))), {
                       success: "Disposizione salvata.",
@@ -213,6 +238,12 @@ export function FloorPlan(props: {
       </div>
 
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
+      {edit && (
+        <Alert tone="info" title="Modifica della sala">
+          Trascina i tavoli per spostarli · tocca un tavolo per cambiarne nome, posti, forma o eliminarlo · «+ Tavolo» per aggiungerne uno · poi
+          «Salva disposizione».
+        </Alert>
+      )}
 
       {sortedRooms.length === 0 ? (
         <Card className="px-6 py-14 text-center">
@@ -227,7 +258,7 @@ export function FloorPlan(props: {
         </Card>
       ) : (
         <div className="overflow-auto rounded-2xl bg-[radial-gradient(circle,#e2e8f0_1px,transparent_1px)] bg-[length:20px_20px] ring-1 ring-slate-200">
-          <div ref={canvasRef} className="relative" style={{ width, height }} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+          <div ref={canvasRef} className={cn("relative select-none", edit && "outline-dashed outline-2 outline-offset-[-8px] outline-sky-300")} style={{ width, height }} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
             {roomTables.map((t) => {
               const p = pos(t);
               const s = t.currentSessionId ? sessionById.get(t.currentSessionId) : null;
@@ -236,8 +267,9 @@ export function FloorPlan(props: {
                 <button
                   key={t.id}
                   onPointerDown={(e) => onPointerDown(e, t)}
+                  onPointerMove={onPointerMove}
+                  onPointerUp={onPointerUp}
                   onClick={() => !edit && setSelectedId(t.id)}
-                  onDoubleClick={() => edit && setTableForm({ id: t.id, label: t.label, seats: t.seats, shape: t.shape })}
                   className={cn(
                     "absolute flex flex-col items-center justify-center p-1 text-center shadow-sm ring-2 transition-shadow",
                     STATUS_STYLE[t.status] ?? STATUS_STYLE.free,
@@ -327,7 +359,7 @@ export function FloorPlan(props: {
                 <option value="rect">Rettangolare</option>
               </Select>
             </Field>
-            <p className="text-xs text-slate-500 sm:col-span-3">Suggerimento: in modifica sala trascina i tavoli; doppio clic per modificarli.</p>
+            <p className="text-xs text-slate-500 sm:col-span-3">Il nuovo tavolo compare in un punto libero della sala: poi trascinalo dove vuoi.</p>
           </div>
         )}
       </Modal>

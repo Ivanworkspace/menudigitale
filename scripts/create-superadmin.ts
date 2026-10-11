@@ -8,8 +8,10 @@ import { adminAuth, adminDb, nowIso, requireEnv } from "./_shared";
 async function main() {
   requireEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
   const [email, password, name = "Amministratore"] = process.argv.slice(2);
-  if (!email || !password || password.length < 12) {
-    console.error("Uso: npm run create-superadmin -- <email> <password (min 12 caratteri)> [nome]");
+  // Long passwords are mandatory in production; local emulator tests may use short ones.
+  const minLength = process.env.FIRESTORE_EMULATOR_HOST ? 6 : 12;
+  if (!email || !password || password.length < minLength) {
+    console.error("Uso: npm run create-superadmin -- <email> <password (min 12 caratteri; 6 con gli emulatori)> [nome]");
     process.exit(1);
   }
   let uid: string;

@@ -43,6 +43,20 @@ export default async function DashboardPage({
   const revenue = paid.reduce((s, d) => s + (d.get("totals.totalCents") as number), 0);
   const resActive = reservations?.docs.filter((d) => !["cancelled", "no_show"].includes(d.get("status"))) ?? [];
   const low = ingredients?.filter((i) => i.active && stockLevel(i) !== "ok") ?? [];
+  // Onboarding checklist for the owner until the venue is set up.
+  const [productsCount, tablesCount, staffCount] = await Promise.all([
+    refs.products(t).count().get().then((x) => x.data().count),
+    refs.tables(t).count().get().then((x) => x.data().count),
+    refs.staff(t).count().get().then((x) => x.data().count),
+  ]);
+  const steps = [
+    { done: productsCount > 0, label: "Crea categorie e prodotti del menu", href: "menu" },
+    { done: !!ctx.tenant.settings.openingHours?.length, label: "Imposta orari, coperto e lingue", href: "impostazioni" },
+    { done: tablesCount > 0, label: "Disegna la sala e aggiungi i tavoli", href: "sala" },
+    { done: staffCount > 1, label: "Crea gli utenti del personale con i loro PIN", href: "personale" },
+    { done: !!ctx.tenant.settings.privacyText, label: "Inserisci l'informativa privacy", href: "impostazioni/legali" },
+  ];
+  const showSteps = ctx.staff.role === "owner" && steps.some((x) => !x.done);
 
   return (
     <>
@@ -51,6 +65,21 @@ export default async function DashboardPage({
         <div className="mb-4">
           <Alert tone="warning">Non hai i permessi per accedere a quella sezione.</Alert>
         </div>
+      )}
+      {showSteps && (
+        <Card className="mb-6">
+          <CardHeader title="Primi passi" description={`${steps.filter((x) => x.done).length} di ${steps.length} completati`} />
+          <ul className="divide-y divide-slate-100">
+            {steps.map((x) => (
+              <li key={x.href}>
+                <Link href={`/g/${token}/${x.href}`} className="flex items-center gap-3 px-5 py-3 text-sm hover:bg-slate-50">
+                  <span className={x.done ? "text-emerald-600" : "text-slate-300"}>{x.done ? "✓" : "○"}</span>
+                  <span className={x.done ? "text-slate-400 line-through" : "font-medium"}>{x.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {bills && <Stat label="Incasso di oggi" value={eur(revenue)} hint={`${paid.length} conti chiusi`} />}
