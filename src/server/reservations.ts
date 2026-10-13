@@ -39,6 +39,7 @@ export type ReservationInput = {
   time: string;
   notes?: string;
   tableId?: string | null;
+  reviewConsent?: boolean;
 };
 
 export async function createReservation(t: Tenant, input: ReservationInput, source: Reservation["source"], opts: { checkAvailability: boolean }) {
@@ -62,7 +63,7 @@ export async function createReservation(t: Tenant, input: ReservationInput, sour
       name, phone, email, covers, date: input.date, time: input.time,
       durationMin: cfg.durationMin, notes: (input.notes ?? "").slice(0, 300), tableId: input.tableId ?? null,
       status: source === "online" && !cfg.autoConfirm ? "pending" : "confirmed",
-      source, customerId: null, manageCode: randomToken(12), createdAt: nowIso(),
+      source, customerId: null, manageCode: randomToken(12), reviewConsent: !!input.reviewConsent, createdAt: nowIso(),
     });
   });
   if (source === "online") {

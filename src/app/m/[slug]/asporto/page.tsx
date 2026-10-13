@@ -8,6 +8,7 @@ import { getPlatformSettings } from "@/server/superadmin/queries";
 import { takeawayConfig, takeawayMenuId, takeawayOpen } from "@/server/takeaway";
 import { MenuUnavailable } from "@/components/public/menu-unavailable";
 import { TakeawayMenu } from "@/components/public/takeaway-menu";
+import { reviewConfig, reviewsActive } from "@/server/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function TakeawayPage({ params, searchParams }: Props) {
       note={cfg.note}
       minOrderCents={cfg.minOrderCents}
       phone={tenant.phone}
+      askReview={reviewsActive(tenant) && reviewConfig(tenant).fromTakeaway}
     />
   );
 }

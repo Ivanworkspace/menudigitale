@@ -19,7 +19,7 @@ async function main() {
   const cust = (await db.collection("tenants").doc(tenantId).collection("customers").limit(1).get()).docs[0];
   const base = `http://localhost:3000/g/${token}`;
   const pages = [
-    "dashboard", "titolare", "asporto", "impostazioni/asporto", "sala", "ordini", "ordini/nuovo", "ordini/storico", "cucina", "conti", "menu", "menu/categorie", "menu/varianti",
+    "dashboard", "titolare", "asporto", "impostazioni/asporto", "recensioni", "sala", "ordini", "ordini/nuovo", "ordini/storico", "cucina", "conti", "menu", "menu/categorie", "menu/varianti",
     "menu/listini", "menu/import", "menu/qr", `menu/prodotti/${product.id}`, "menu/prodotti/nuovo", "disponibilita", "prenotazioni",
     "prenotazioni/impostazioni", "clienti", `clienti/${cust.id}`, "clienti/fidelity", "clienti/promozioni", "magazzino",
     "magazzino/ricette", "magazzino/movimenti", "statistiche", "statistiche?periodo=30g", "personale", "registro", "impostazioni",

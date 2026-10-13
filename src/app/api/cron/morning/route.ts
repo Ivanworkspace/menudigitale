@@ -7,6 +7,8 @@ import { deltaLabel, shiftDay } from "@/domain/push";
 import { dailyTotals, venueDay } from "@/server/owner";
 import { pushConfigured, sendOne, type PushSubscriptionDoc } from "@/server/push";
 import type { Tenant } from "@/server/db/types";
+import { sendDueReviewEmails } from "@/server/reviews";
+import { tenantSubscription } from "@/server/tenancy/resolve";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +20,14 @@ function authorized(req: NextRequest) {
 }
 
 /**
- * Daily (Vercel Cron, morning): pushes yesterday's takings to the owners who
- * subscribed to the "summary" topic in the owner app.
+ * Daily (Vercel Cron, morning):
+ * 1. emails the review invitations due today (customers who opted in);
+ * 2. pushes yesterday's takings to owners subscribed to the "summary" topic.
  */
 export async function GET(req: NextRequest) {
   if (!authorized(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  if (!pushConfigured()) return NextResponse.json({ sent: 0, note: "push not configured" });
+  const reviews = await sendReviewInvites();
+  if (!pushConfigured()) return NextResponse.json({ reviews, sent: 0, note: "push not configured" });
   const subs = allWithId<PushSubscriptionDoc>(await refs.pushSubscriptions().where("topics", "array-contains", "summary").get());
   const byTenant = new Map<string, PushSubscriptionDoc[]>();
   for (const s of subs) byTenant.set(s.tenantId, [...(byTenant.get(s.tenantId) ?? []), s]);
@@ -50,5 +54,19 @@ export async function GET(req: NextRequest) {
       sent++;
     }
   }
-  return NextResponse.json({ sent });
+  return NextResponse.json({ reviews, sent });
+}
+
+async function sendReviewInvites(): Promise<number> {
+  const tenants = allWithId<Tenant>(await refs.tenants().where("settings.reviews.enabled", "==", true).get());
+  let n = 0;
+  for (const t of tenants) {
+    if (!tenantSubscription(t).accessAllowed) continue;
+    try {
+      n += await sendDueReviewEmails(t, venueDay(t));
+    } catch (e) {
+      console.error("review invites failed", t.id, e);
+    }
+  }
+  return n;
 }

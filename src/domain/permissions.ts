@@ -77,6 +77,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "disponibilita", label: "Disponibilità", icon: "check", permission: "products.availability" },
   { href: "prenotazioni", label: "Prenotazioni", icon: "calendar", module: "reservations", permission: "reservations.manage" },
   { href: "clienti", label: "Clienti e fidelity", icon: "heart", module: "loyalty", permission: "customers.manage" },
+  { href: "recensioni", label: "Recensioni", icon: "star", permission: "customers.manage" },
   { href: "magazzino", label: "Magazzino", icon: "box", module: "inventory", permission: "inventory.manage" },
   { href: "statistiche", label: "Statistiche", icon: "chart", permission: "revenue.view" },
   { href: "personale", label: "Personale", icon: "users", permission: "staff.manage" },

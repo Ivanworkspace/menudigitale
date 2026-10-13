@@ -45,6 +45,8 @@ export type Reservation = {
   status: ReservationStatus;
   source: "staff" | "online" | "phone";
   customerId: string | null;
+  /** Customer agreed to receive a review request after the visit. */
+  reviewConsent?: boolean;
   createdAt: string;
 };
 

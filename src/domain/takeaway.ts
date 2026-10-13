@@ -51,6 +51,9 @@ export type TakeawayInfo = {
   readyAt: string | null;
   pickedUpAt: string | null;
   rejectReason: string | null;
+  email?: string | null;
+  /** Customer agreed to receive a review request after pickup. */
+  reviewConsent?: boolean;
 };
 
 export const TAKEAWAY_STATUS_LABELS: Record<TakeawayStatus, string> = {

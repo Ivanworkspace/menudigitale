@@ -28,7 +28,7 @@ export async function publicSlots(slug: string, date: string, party: number): Pr
 
 export async function publicBook(
   slug: string,
-  v: { name: string; phone: string; email: string; covers: number; date: string; time: string; notes: string; privacy: boolean; website?: string },
+  v: { name: string; phone: string; email: string; covers: number; date: string; time: string; notes: string; privacy: boolean; website?: string; reviewConsent?: boolean },
 ): Promise<Result<{ status: string }>> {
   try {
     if (v.website) throw new UserError("Richiesta non valida."); // honeypot against bots

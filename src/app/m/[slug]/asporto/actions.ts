@@ -31,7 +31,7 @@ export async function takeawaySlots(slug: string): Promise<Result<{ time: string
 
 export async function placeTakeaway(
   slug: string,
-  v: { name: string; phone: string; pickupTime: string; lines: LineInput[]; notes: string; privacy: boolean; website?: string },
+  v: { name: string; phone: string; pickupTime: string; lines: LineInput[]; notes: string; privacy: boolean; website?: string; email?: string; reviewConsent?: boolean },
 ): Promise<Result<{ token: string; number: number }>> {
   try {
     if (v.website) throw new UserError("Richiesta non valida."); // honeypot against bots

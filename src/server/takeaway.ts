@@ -20,6 +20,8 @@ import {
 import { normalizePhone } from "@/domain/loyalty";
 import { currentMenu, localClock, type Menu } from "@/domain/menu";
 import type { Tenant } from "@/server/db/types";
+import { getTenant } from "@/server/tenancy/resolve";
+import { enqueueReviewRequest } from "@/server/reviews";
 
 export type TakeawaySession = TableSession & { takeaway: TakeawayInfo };
 
@@ -60,6 +62,8 @@ export type TakeawayInput = {
   pickupTime: string;
   lines: LineInput[];
   notes?: string;
+  email?: string;
+  reviewConsent?: boolean;
 };
 
 /**
@@ -75,6 +79,8 @@ export async function createTakeawayOrder(t: Tenant, input: TakeawayInput): Prom
   if (name.length < 2) throw new UserError("Indica il tuo nome.");
   if (!phone || phone.replace(/\D/g, "").length < 8) throw new UserError("Indica un numero di telefono valido.");
   if (!/^\d{2}:\d{2}$/.test(input.pickupTime)) throw new UserError("Scegli l'orario di ritiro.");
+  const email = String(input.email ?? "").trim().toLowerCase().slice(0, 120) || null;
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new UserError("Email non valida.");
 
   // Validate products and prices before reserving anything.
   const data = await loadMenuData(t.id);
@@ -112,6 +118,8 @@ export async function createTakeawayOrder(t: Tenant, input: TakeawayInput): Prom
       readyAt: null,
       pickedUpAt: null,
       rejectReason: null,
+      email,
+      reviewConsent: !!input.reviewConsent,
     };
     const session: Omit<TableSession, "id"> = {
       tableId: "",
@@ -221,5 +229,12 @@ export async function onTakeawayBillClosed(tenantId: string, sessionId: string) 
   const s = (await ref.get()).data() as TableSession | undefined;
   if (s?.takeaway && s.takeaway.status !== "picked_up" && s.takeaway.status !== "rejected") {
     await ref.update({ "takeaway.status": "picked_up", "takeaway.pickedUpAt": nowIso() });
+    const tenant = await getTenant(tenantId);
+    const tk = s.takeaway;
+    if (tenant) {
+      await enqueueReviewRequest(tenant, {
+        source: "takeaway", sourceId: sessionId, name: tk.customerName, email: tk.email ?? null, phone: tk.phone, visitDay: tk.day, consent: !!tk.reviewConsent,
+      });
+    }
   }
 }

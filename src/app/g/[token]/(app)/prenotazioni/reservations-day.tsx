@@ -22,7 +22,7 @@ type R = Reservation & { whatsapp: string };
 
 export function ReservationsDay({ token, date, today, reservations, tables, publicUrl, online }: { token: string; date: string; today: string; reservations: R[]; tables: { id: string; label: string }[]; publicUrl: string; online: boolean }) {
   const router = useRouter();
-  const [form, setForm] = useState<null | { name: string; phone: string; email: string; covers: number; date: string; time: string; notes: string; tableId: string }>(null);
+  const [form, setForm] = useState<null | { name: string; phone: string; email: string; covers: number; date: string; time: string; notes: string; tableId: string; reviewConsent: boolean }>(null);
   const [slots, setSlots] = useState<{ time: string; available: number }[]>([]);
   const { pending, msg, run } = useAction();
   const active = reservations.filter((r) => r.status !== "cancelled" && r.status !== "no_show");
@@ -46,7 +46,7 @@ export function ReservationsDay({ token, date, today, reservations, tables, publ
         <span className="ml-2 font-semibold capitalize">{label}</span>
         <div className="ml-auto flex gap-2">
           {online && <a className={buttonClass("ghost", "sm")} href={publicUrl} target="_blank" rel="noreferrer">Pagina pubblica ↗</a>}
-          <Button size="sm" onClick={() => setForm({ name: "", phone: "", email: "", covers: 2, date, time: "", notes: "", tableId: "" })}>+ Prenotazione</Button>
+          <Button size="sm" onClick={() => setForm({ name: "", phone: "", email: "", covers: 2, date, time: "", notes: "", tableId: "", reviewConsent: false })}>+ Prenotazione</Button>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4">
@@ -128,6 +128,10 @@ export function ReservationsDay({ token, date, today, reservations, tables, publ
               </Select>
             </Field>
             <Field label="Note" className="sm:col-span-2"><Textarea rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" className="mt-1" checked={form.reviewConsent} onChange={(e) => setForm({ ...form, reviewConsent: e.target.checked })} />
+              <span>Il cliente accetta di ricevere, dopo la visita, un invito a lasciare una recensione</span>
+            </label>
           </div>
         )}
       </Modal>

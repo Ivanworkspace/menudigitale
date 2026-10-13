@@ -71,4 +71,6 @@ export const SUB = {
   promotions: "promotions",
   ingredients: "ingredients",
   stockMovements: "stock_movements",
+  reviewRequests: "review_requests",
+  reviewOptouts: "review_optouts",
 } as const;

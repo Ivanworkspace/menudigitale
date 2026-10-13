@@ -8,6 +8,7 @@ import { staffActor } from "@/server/auth/require-staff";
 import { logTenantAction } from "@/server/audit";
 import { createReservation, sendReservationEmail, slotsFor, type ReservationInput } from "@/server/reservations";
 import { openSession } from "@/server/sala/service";
+import { enqueueReviewRequest } from "@/server/reviews";
 import type { Reservation, ReservationStatus } from "@/domain/reservations";
 
 const RES = { permission: "reservations.manage" as const, module: "reservations" as const };
@@ -42,6 +43,9 @@ export async function setReservationStatus(token: string, id: string, status: Re
       if (table.exists && !table.get("currentSessionId")) {
         await openSession(ctx.tenant, r.tableId, { covers: r.covers, coversChildren: 0, waiterId: null, waiterName: null }, { id: ctx.staff.id, name: ctx.staff.displayName });
       }
+    }
+    if (status === "arrived") {
+      await enqueueReviewRequest(ctx.tenant, { source: "reservation", sourceId: id, name: r.name, email: r.email, phone: r.phone, visitDay: r.date, consent: !!r.reviewConsent });
     }
     if ((status === "confirmed" || status === "cancelled") && r.email) await sendReservationEmail(ctx.tenant, { ...r, email: r.email, status });
     await logTenantAction(ctx.tenant.id, staffActor(ctx), `reservation.${status}`, { entity: "reservation", entityId: id });

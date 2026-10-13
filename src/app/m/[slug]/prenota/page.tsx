@@ -6,6 +6,7 @@ import { resolveTenantBySlug, tenantSubscription } from "@/server/tenancy/resolv
 import { reservationConfig, venueNow } from "@/server/reservations";
 import { assetUrl } from "@/lib/assets";
 import { BookingForm } from "./booking-form";
+import { reviewConfig, reviewsActive } from "@/server/reviews";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const t = await resolveTenantBySlug((await params).slug);
@@ -29,7 +30,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
         {cfg.onlineEnabled ? (
-          <BookingForm slug={slug} today={venueNow(t).date} maxParty={cfg.maxPartySize} accent={t.branding.primaryColor} phone={t.phone} />
+          <BookingForm slug={slug} today={venueNow(t).date} maxParty={cfg.maxPartySize} accent={t.branding.primaryColor} phone={t.phone} askReview={reviewsActive(t) && reviewConfig(t).fromReservations} />
         ) : (
           <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
             <p>La prenotazione online non è attiva.</p>

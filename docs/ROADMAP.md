@@ -16,7 +16,7 @@
 - **Asporto:** ordini online con orario di ritiro, capienza per fascia, conferma manuale, stato per il cliente,
   integrazione con cucina, stampa e cassa (pagamento al ritiro).
 - **App titolare:** schermata mobile installabile con incassi in tempo reale, confronti e avvisi; notifiche push
-  (Web Push/VAPID) per argomento e riepilogo giornaliero del mattino (cron `daily-summary`).
+  (Web Push/VAPID) per argomento e riepilogo giornaliero del mattino (cron `morning`).
 
 ## Da completare / estensioni previste
 

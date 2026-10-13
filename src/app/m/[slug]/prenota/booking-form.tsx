@@ -3,12 +3,12 @@ import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { publicBook, publicSlots } from "./actions";
 
-export function BookingForm({ slug, today, maxParty, accent, phone }: { slug: string; today: string; maxParty: number; accent: string; phone: string | null }) {
+export function BookingForm({ slug, today, maxParty, accent, phone, askReview = false }: { slug: string; today: string; maxParty: number; accent: string; phone: string | null; askReview?: boolean }) {
   const [date, setDate] = useState(today);
   const [covers, setCovers] = useState(2);
   const [slots, setSlots] = useState<{ time: string }[] | null>(null);
   const [time, setTime] = useState("");
-  const [f, setF] = useState({ name: "", phone: "", email: "", notes: "", privacy: false, website: "" });
+  const [f, setF] = useState({ name: "", phone: "", email: "", notes: "", privacy: false, website: "", reviewConsent: false });
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -87,6 +87,12 @@ export function BookingForm({ slug, today, maxParty, accent, phone }: { slug: st
           Ho letto l&apos;<Link href={`/m/${slug}/privacy`} className="underline" target="_blank">informativa privacy</Link> e acconsento al trattamento dei dati per gestire la prenotazione.
         </span>
       </label>
+      {askReview && (
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" checked={f.reviewConsent} onChange={(e) => setF({ ...f, reviewConsent: e.target.checked })} className="mt-1" style={{ accentColor: accent }} />
+          <span>Dopo la visita mandatemi un messaggio per lasciare una recensione (facoltativo)</span>
+        </label>
+      )}
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button disabled={pending} className="h-12 w-full rounded-xl text-base font-bold text-white disabled:opacity-50" style={{ background: accent }}>
         {pending ? "Invio…" : "Prenota"}

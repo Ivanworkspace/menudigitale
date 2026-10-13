@@ -27,6 +27,8 @@ const TEXT = {
     minOrder: (v: string) => `Ordine minimo ${v}`,
     lastOrder: "Il tuo ultimo ordine",
     call: "Chiama",
+    email: "Email (facoltativa)",
+    reviewConsent: "Dopo il ritiro mandatemi un messaggio per lasciare una recensione (facoltativo)",
   },
   en: {
     title: "Order for pickup",
@@ -44,6 +46,8 @@ const TEXT = {
     minOrder: (v: string) => `Minimum order ${v}`,
     lastOrder: "Your last order",
     call: "Call",
+    email: "Email (optional)",
+    reviewConsent: "After pickup, send me a message to leave a review (optional)",
   },
 };
 
@@ -56,6 +60,7 @@ export function TakeawayMenu({
   note,
   minOrderCents,
   phone,
+  askReview = false,
 }: {
   menu: PublicMenu;
   slug: string;
@@ -63,6 +68,7 @@ export function TakeawayMenu({
   note: string;
   minOrderCents: number;
   phone: string | null;
+  askReview?: boolean;
 }) {
   const t = publicDict(menu.lang);
   const x = menu.lang === "it" ? TEXT.it : TEXT.en;
@@ -73,7 +79,7 @@ export function TakeawayMenu({
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [slots, setSlots] = useState<{ time: string; left: number }[] | null>(null);
-  const [f, setF] = useState({ name: "", phone: "", pickupTime: "", notes: "", privacy: false, website: "" });
+  const [f, setF] = useState({ name: "", phone: "", email: "", pickupTime: "", notes: "", privacy: false, website: "", reviewConsent: false });
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [last, setLast] = useState<string | null>(null);
@@ -264,12 +270,21 @@ export function TakeawayMenu({
               <input className={input} placeholder={x.phone} type="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} required autoComplete="tel" />
               <p className="mt-1 text-xs text-slate-500">{x.phoneHint}</p>
             </div>
+            {askReview && (
+              <input className={input} placeholder={x.email} type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} autoComplete="email" />
+            )}
             <textarea className="w-full rounded-xl p-3 text-base ring-1 ring-slate-300" rows={2} placeholder={t.orderNotes} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value.slice(0, 300) })} />
             <input tabIndex={-1} autoComplete="off" className="hidden" value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} aria-hidden="true" />
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" checked={f.privacy} onChange={(e) => setF({ ...f, privacy: e.target.checked })} className="mt-1" style={{ accentColor: accent }} />
               <span>{x.privacy(<Link href={`/m/${slug}/privacy`} className="underline" target="_blank">{x.privacyLink}</Link>)}</span>
             </label>
+            {askReview && (
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" checked={f.reviewConsent} onChange={(e) => setF({ ...f, reviewConsent: e.target.checked })} className="mt-1" style={{ accentColor: accent }} />
+                <span>{x.reviewConsent}</span>
+              </label>
+            )}
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               disabled={pending || !cart.length || !slots?.length || (minOrderCents > 0 && total < minOrderCents)}
