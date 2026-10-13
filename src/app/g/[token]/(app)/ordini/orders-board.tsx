@@ -13,6 +13,7 @@ import { orderProgress, type Order, type ServiceRequest, type TableSession } fro
 import { approve } from "./actions";
 import { setStatus } from "../cucina/actions";
 import { resolveRequest } from "../sala/actions";
+import { placeLabel } from "@/domain/takeaway";
 
 const BLOCK_LABEL: Record<string, string> = {
   outside_area: "fuori area",
@@ -81,7 +82,7 @@ export function OrdersBoard({
                 {pendingOrders.map((o) => (
                   <li key={o.id} className="space-y-2 px-5 py-3">
                     <div className="flex items-center justify-between">
-                      <p className="font-semibold">Tavolo {o.tableLabel}</p>
+                      <p className="font-semibold">{placeLabel(o.tableLabel)}</p>
                       <Badge tone="amber">{o.approvalReason === "geo" ? "Posizione non verificata" : "Primo ordine"}</Badge>
                     </div>
                     <p className="text-sm text-slate-600">{o.items.map((i) => `${i.qty}× ${tr(i.name, "it")}`).join(", ")}</p>
@@ -117,7 +118,7 @@ export function OrdersBoard({
 
       {ready.length > 0 && (
         <Alert tone="success" title={`Pronti da servire: ${ready.length}`}>
-          {ready.map((o) => `Tavolo ${o.tableLabel}`).join(" · ")}
+          {ready.map((o) => placeLabel(o.tableLabel)).join(" · ")}
         </Alert>
       )}
 
@@ -129,7 +130,7 @@ export function OrdersBoard({
           return (
             <Card key={o.id} className={cn("p-4", pr === "ready" && "ring-2 ring-emerald-400")}>
               <div className="flex items-center justify-between">
-                <p className="text-lg font-bold">Tavolo {o.tableLabel}</p>
+                <p className="text-lg font-bold">{placeLabel(o.tableLabel)}</p>
                 <Badge tone={PROGRESS[pr].tone}>{PROGRESS[pr].label}</Badge>
               </div>
               <p className="text-xs text-slate-500">

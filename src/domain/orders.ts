@@ -4,6 +4,7 @@
 import type { I18n } from "./menu";
 import { isVisibleAt } from "./menu";
 import type { MenuMode } from "./modules";
+import type { TakeawayInfo } from "./takeaway";
 
 export type TableShape = "square" | "round" | "rect";
 export type TableStatus = "free" | "occupied" | "pending" | "bill_requested" | "to_clean" | "reserved";
@@ -62,6 +63,8 @@ export type TableSession = {
   currentCourse: number;
   totalCents: number;
   ayce: AyceState | null;
+  /** Set on takeaway orders (no physical table). */
+  takeaway?: TakeawayInfo | null;
 };
 
 export type ItemStatus = "held" | "new" | "in_progress" | "ready" | "served" | "cancelled";
@@ -91,9 +94,9 @@ export type Order = {
   tableSessionId: string;
   tableId: string;
   tableLabel: string;
-  source: "qr" | "waiter";
+  source: "qr" | "waiter" | "takeaway";
   status: OrderStatus;
-  approvalReason: "first_order" | "geo" | null;
+  approvalReason: "first_order" | "geo" | "takeaway" | null;
   items: OrderItem[];
   notes: string;
   round: number | null;

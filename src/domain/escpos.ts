@@ -85,7 +85,7 @@ export type KitchenTicketInput = {
 export function kitchenTicket(t: KitchenTicketInput, width = 42): Uint8Array {
   const p = new EscPos(width);
   if (t.urgent) p.beep();
-  p.align("center").bold(true).size(2).line(`TAVOLO ${t.table}`).size(1).line(t.department.toUpperCase()).bold(false);
+  p.align("center").bold(true).size(2).line(t.table.startsWith("Asporto ") ? t.table.toUpperCase() : `TAVOLO ${t.table}`).size(1).line(t.department.toUpperCase()).bold(false);
   if (t.urgent) p.bold(true).line("*** URGENTE ***").bold(false);
   if (t.reprint) p.line("(RISTAMPA)");
   p.line(`${t.time}${t.waiter ? ` - ${t.waiter}` : ""}${t.round ? ` - giro ${t.round}` : ""}`).align("left").hr();

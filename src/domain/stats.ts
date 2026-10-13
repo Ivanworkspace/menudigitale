@@ -126,7 +126,8 @@ export function waiterPerformance(bills: StatBill[], sessions: Map<string, StatS
 export function tableStats(sessions: StatSession[]) {
   const m = new Map<string, { label: string; turns: number; minutes: number }>();
   for (const s of sessions) {
-    if (!s.closedAt) continue;
+    // Takeaway orders have no table: stay time is meaningless.
+    if (!s.closedAt || !s.tableId) continue;
     const r = m.get(s.tableId) ?? { label: s.tableLabel, turns: 0, minutes: 0 };
     r.turns += 1;
     r.minutes += Math.max(0, (new Date(s.closedAt).getTime() - new Date(s.openedAt).getTime()) / 60_000);

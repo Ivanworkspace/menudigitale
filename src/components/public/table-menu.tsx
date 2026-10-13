@@ -51,7 +51,7 @@ function getGeo(): Promise<GeoFact> {
   });
 }
 
-function unitPrice(p: PublicProduct, sel: Record<string, string[]>) {
+export function unitPrice(p: PublicProduct, sel: Record<string, string[]>) {
   let price = p.priceCents;
   for (const g of p.modifierGroups) for (const id of sel[g.id] ?? []) price += g.options.find((o) => o.id === id)?.priceDeltaCents ?? 0;
   return Math.max(0, price);
@@ -452,7 +452,7 @@ export function TableMenu(props: {
   );
 }
 
-function ProductPicker({
+export function ProductPicker({
   p,
   t,
   accent,

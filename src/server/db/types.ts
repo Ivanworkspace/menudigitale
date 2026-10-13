@@ -9,6 +9,7 @@ import type { StaffRole } from "@/domain/permissions";
 import type { AyceConfig } from "@/domain/ayce";
 import type { ReservationConfig } from "@/domain/reservations";
 import type { LoyaltyConfig } from "@/domain/loyalty";
+import type { TakeawayConfig } from "@/domain/takeaway";
 
 export type Branding = {
   logoPath: string | null;
@@ -52,6 +53,7 @@ export type TenantSettings = {
   paymentMethods?: string[];
   reservations?: ReservationConfig;
   loyalty?: LoyaltyConfig;
+  takeaway?: TakeawayConfig;
 };
 
 export type Tenant = {

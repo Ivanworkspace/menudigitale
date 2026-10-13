@@ -221,6 +221,11 @@ export function PublicMenuView({ menu, slots = {}, scanType = "menu_view" }: { m
                 📅 {t.book}
               </Link>
             )}
+            {v.takeawayEnabled && scanType === "menu_view" && !pathname.endsWith("/asporto") && (
+              <Link href={`/m/${v.slug}/asporto`} className="rounded-full px-3 py-1.5 text-sm font-semibold text-white shadow-sm" style={{ background: v.primaryColor }}>
+                🛍️ {t.takeaway}
+              </Link>
+            )}
             {v.mapsUrl && (
               <a href={v.mapsUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-black/5">
                 🗺️ {t.directions}

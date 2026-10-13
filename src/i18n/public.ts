@@ -66,6 +66,7 @@ const it = {
   leaveReview: "Ti è piaciuto? Lasciaci una recensione",
   staticOnly: "In questo momento il menu è solo consultabile.",
   book: "Prenota",
+  takeaway: "Asporto",
 };
 
 type Dict = typeof it;
@@ -137,6 +138,7 @@ const en: Dict = {
   leaveReview: "Enjoyed it? Leave us a review",
   staticOnly: "The menu is view-only right now.",
   book: "Book a table",
+  takeaway: "Takeaway",
 };
 
 const de: Dict = {
@@ -166,6 +168,7 @@ const de: Dict = {
   unavailable: "Die Speisekarte ist derzeit nicht verfügbar.",
   language: "Sprache",
   ayceIncluded: "Inklusive",
+  takeaway: "Zum Mitnehmen",
 };
 
 const fr: Dict = {
@@ -195,6 +198,7 @@ const fr: Dict = {
   unavailable: "Le menu n'est pas disponible pour le moment.",
   language: "Langue",
   ayceIncluded: "Inclus",
+  takeaway: "À emporter",
 };
 
 const es: Dict = {
@@ -224,6 +228,7 @@ const es: Dict = {
   unavailable: "El menú no está disponible en este momento.",
   language: "Idioma",
   ayceIncluded: "Incluido",
+  takeaway: "Para llevar",
 };
 
 const DICTS: Record<string, Dict> = { it, en, de, fr, es };

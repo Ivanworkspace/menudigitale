@@ -4,6 +4,7 @@ import { getBill } from "@/server/billing/service";
 import { formatEuro } from "@/lib/format";
 import { FISCAL_WARNING, PAYMENT_LABELS } from "@/domain/billing";
 import { PrintButton } from "./print-button";
+import { placeLabel } from "@/domain/takeaway";
 
 export const metadata = { title: "Preconto" };
 
@@ -27,7 +28,7 @@ export default async function PrintBillPage({ params }: { params: Promise<{ toke
         {tn.address && <p className="text-center">{[tn.address, tn.city].filter(Boolean).join(" ")}</p>}
         {tn.vatNumber && <p className="text-center">P.IVA {tn.vatNumber}</p>}
         <p className="my-2 text-center font-bold">PRECONTO {b.number ? `#${b.number}` : ""}</p>
-        <p>Tavolo {b.tableLabel} · Coperti {b.covers + b.coversChildren}</p>
+        <p>{placeLabel(b.tableLabel)}{b.covers + b.coversChildren > 0 ? ` · Coperti ${b.covers + b.coversChildren}` : ""}</p>
         <p>{new Date(b.closedAt ?? b.updatedAt).toLocaleString("it-IT", { timeZone: tn.settings.timezone })}</p>
         <hr className="my-2 border-dashed border-black" />
         {b.lines.map((l) => (

@@ -3,6 +3,8 @@ import { refs, db, nowIso } from "@/server/db";
 import { UserError } from "@/server/action";
 import { notify } from "@/server/notify";
 import type { ItemStatus, Order, OrderItem } from "@/domain/orders";
+import { placeLabel } from "@/domain/takeaway";
+import { markTakeawayReady } from "@/server/takeaway";
 
 const ALLOWED: Record<ItemStatus, ItemStatus[]> = {
   held: ["new"],
@@ -19,12 +21,14 @@ const ALLOWED: Record<ItemStatus, ItemStatus[]> = {
  */
 export async function setItemsStatus(tenantId: string, orderId: string, itemIds: string[] | "all", status: ItemStatus, departmentId?: string | null) {
   let label = "";
+  let sessionId = "";
   let becameReady = false;
   await db().runTransaction(async (tx) => {
     const ref = refs.orders(tenantId).doc(orderId);
     const o = (await tx.get(ref)).data() as Order | undefined;
     if (!o || o.status !== "sent") throw new UserError("Comanda non trovata.");
     label = o.tableLabel;
+    sessionId = o.tableSessionId;
     const now = nowIso();
     const wasReady = isAllReady(o.items);
     const items = o.items.map((i) => {
@@ -39,7 +43,10 @@ export async function setItemsStatus(tenantId: string, orderId: string, itemIds:
     becameReady = !wasReady && isAllReady(items);
     tx.update(ref, { items });
   });
-  if (becameReady) await notify(tenantId, { type: "order_ready", title: `Pronto da servire · Tavolo ${label}`, urgent: true });
+  if (becameReady) {
+    await notify(tenantId, { type: "order_ready", title: `Pronto · ${placeLabel(label)}`, urgent: true });
+    await markTakeawayReady(tenantId, sessionId);
+  }
 }
 
 function isAllReady(items: OrderItem[]) {

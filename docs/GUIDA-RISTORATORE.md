@@ -71,6 +71,20 @@ In *Impostazioni → Ordini e AYCE*: prezzo a persona (pranzo, cena, festivi, ba
 minuti tra un giro e l'altro, permanenza massima. Nella scheda prodotto indichi se è **incluso** o **extra** a
 pagamento e l'eventuale limite per tavolo. Il cliente vede il timer del prossimo giro.
 
+### Ordini d'asporto
+In *Impostazioni → Asporto* attiva gli ordini online, scegli le fasce orarie di ritiro, quanti ordini al massimo
+per orario, il tempo minimo di preparazione e l'eventuale ordine minimo. Condividi il link della pagina
+(sito, Instagram, Google, WhatsApp): sul menu compare anche il pulsante **🛍️ Asporto**.
+
+Il cliente sceglie i piatti, l'orario di ritiro, lascia nome e telefono e riceve una pagina con il **numero
+d'ordine** e lo stato aggiornato. Nella pagina **Asporto** del pannello:
+1. **Conferma** (o **Rifiuta** con un motivo che il cliente vedrà): la comanda arriva in cucina e in stampa
+   come «Asporto 3 · Mario»;
+2. quando la cucina segna tutto pronto, l'ordine passa da solo in **Pronti da ritirare**;
+3. al ritiro premi **Incassa e consegna**: si apre il conto in cassa; alla chiusura l'ordine risulta ritirato.
+
+Nessun pagamento online: si paga al ritiro. Senza coperto e senza servizio.
+
 ## 5. Cucina e bar
 
 *Cucina e bar* mostra le comande in arrivo per reparto (scegli il reparto in alto: il tablet lo ricorda).
@@ -104,7 +118,24 @@ Satispay o pagamenti misti, stampare il **preconto** e chiudere il conto (il tav
 venduti, categorie, fasce orarie, camerieri, tavoli, visite al menu e scansioni QR. Esporta in CSV/Excel o PDF.
 *Registro attività*: chi ha fatto cosa e quando (prezzi cambiati, annullamenti, sconti, accessi).
 
-## 9. Domande frequenti
+## 9. App del titolare
+
+*App titolare* è la schermata pensata per il telefono del titolare: incasso di oggi (con il confronto sullo stesso
+giorno della settimana scorsa), quanto c'è ancora da incassare, tavoli aperti e persone in sala, asporto e
+prenotazioni, avvisi (ordini da confermare, tentativi bloccati, scorte basse, prodotti esauriti) e gli incassi
+degli ultimi 7 giorni. Si aggiorna da sola.
+
+**Installala come app:** apri il link di gestione sul telefono, entra col PIN, vai su *App titolare* e
+- iPhone: Safari → Condividi → *Aggiungi alla schermata Home*;
+- Android: Chrome → menu ⋮ → *Installa app*.
+
+L'icona «Titolare» si apre direttamente su questa schermata dopo il PIN.
+
+**Notifiche push:** nella stessa pagina tocca *Attiva notifiche su questo dispositivo* e scegli cosa ricevere
+(ordini da confermare, tutti gli ordini, tentativi bloccati, scorte, chiamate dai tavoli, riepilogo del mattino
+con l'incasso di ieri). Su iPhone funzionano solo dall'app installata (iOS 16.4 o successivo).
+
+## 10. Domande frequenti
 
 - **Un cliente dice che non riesce a ordinare.** Il tavolo è aperto? Ha consentito la posizione? Se usi il codice
   tavolo, comunicaglielo dalla scheda del tavolo.

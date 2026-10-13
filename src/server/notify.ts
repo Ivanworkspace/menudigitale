@@ -1,5 +1,6 @@
 import "server-only";
 import { refs, nowIso, expireIn } from "@/server/db";
+import { pushForNotification } from "@/server/push";
 
 export type NotificationType =
   | "new_order"
@@ -30,4 +31,5 @@ export async function notify(
     createdAt: nowIso(),
     expireAt: expireIn(2 * 86_400_000),
   });
+  await pushForNotification(tenantId, n);
 }

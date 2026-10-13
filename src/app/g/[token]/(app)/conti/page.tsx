@@ -7,6 +7,7 @@ import { FISCAL_WARNING, PAYMENT_LABELS, type PaymentMethod } from "@/domain/bil
 import type { TableSession } from "@/domain/orders";
 import { BillView } from "./bill-view";
 import { OpenTables } from "./open-tables";
+import { placeLabel } from "@/domain/takeaway";
 
 export const metadata = { title: "Conti e cassa" };
 
@@ -72,7 +73,7 @@ export default async function BillsPage({ params, searchParams }: { params: Prom
             {paid.map((b) => (
               <li key={b.id} className="flex items-center justify-between px-5 py-2.5">
                 <span>
-                  <strong>#{b.number}</strong> · Tavolo {b.tableLabel} · {b.covers + b.coversChildren} cop. ·{" "}
+                  <strong>#{b.number}</strong> · {placeLabel(b.tableLabel)} · {b.covers + b.coversChildren} cop. ·{" "}
                   {b.closedAt && new Date(b.closedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}
                 </span>
                 <span className="flex items-center gap-3">

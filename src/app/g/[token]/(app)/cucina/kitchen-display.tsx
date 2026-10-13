@@ -10,6 +10,7 @@ import { tr } from "@/domain/menu";
 import { buildTickets, nextItemStatus, waitLevel, type Ticket } from "@/domain/kds";
 import type { Order, OrderItem } from "@/domain/orders";
 import { reprint, sendKitchenMessage, setStatus } from "./actions";
+import { shortPlaceLabel } from "@/domain/takeaway";
 
 const DEPT_KEY = "kds.department";
 const QUICK = ["Manca un ingrediente", "Pronto da ritirare", "Ritardo di 10 minuti", "Serve aiuto in cucina"];
@@ -129,7 +130,7 @@ function TicketCard({ t, now, token, dept }: { t: Ticket; now: Date; token: stri
   return (
     <div className={cn("flex flex-col overflow-hidden rounded-2xl bg-white text-slate-900 shadow-lg", t.urgent && "ring-4 ring-red-500", t.status === "ready" && "opacity-70")}>
       <div className={cn("flex items-center justify-between px-4 py-2.5 text-white", t.status === "ready" ? "bg-emerald-700" : LEVEL[level])}>
-        <span className="text-2xl font-black">Tav. {t.tableLabel}</span>
+        <span className="text-2xl font-black">{shortPlaceLabel(t.tableLabel)}</span>
         <span className="text-right text-sm font-semibold leading-tight">
           {minutes}′
           <br />

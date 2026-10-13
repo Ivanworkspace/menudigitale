@@ -3,13 +3,14 @@ import { refs, db, nowIso, FieldValue } from "@/server/db";
 import { UserError } from "@/server/action";
 import { notify } from "@/server/notify";
 import { loadMenuData, type MenuData } from "@/server/menu/repo";
-import { refreshTableStatus, type Actor } from "@/server/sala/service";
+import { closeSession, refreshTableStatus, type Actor } from "@/server/sala/service";
 import { categoryInMenu, priceLine, tr, type ModifierSelection } from "@/domain/menu";
 import { checkAyceRound, DEFAULT_AYCE } from "@/domain/ayce";
 import { orderTotal, type Order, type OrderItem, type TableSession } from "@/domain/orders";
 import type { Tenant } from "@/server/db/types";
 import { randomToken } from "@/server/crypto";
 import { printOrderItems } from "@/server/printing";
+import { placeLabel } from "@/domain/takeaway";
 import { getTenant } from "@/server/tenancy/resolve";
 import { applyRecipeConsumption } from "@/server/inventory";
 
@@ -78,7 +79,7 @@ export async function createOrder(
   sessionId: string,
   lines: LineInput[],
   opts: {
-    source: "qr" | "waiter";
+    source: "qr" | "waiter" | "takeaway";
     actor: Actor;
     deviceId?: string | null;
     notes?: string;
@@ -102,7 +103,7 @@ export async function createOrder(
     const [sSnap, tSnap] = await Promise.all([tx.get(sRef), tx.get(tenantRef)]);
     const s = sSnap.data() as TableSession | undefined;
     if (!s || s.status === "closed") throw new UserError("Il tavolo non è aperto.");
-    if (s.status === "bill_requested" && opts.source === "qr") throw new UserError("È già stato richiesto il conto.");
+    if (s.status === "bill_requested" && opts.source !== "waiter") throw new UserError("È già stato richiesto il conto.");
     label = s.tableLabel;
     const items = buildItems(data, s, lines, { forStaff: opts.source === "waiter" });
     const isAyce = s.mode === "ayce" && !!s.ayce;
@@ -123,7 +124,7 @@ export async function createOrder(
         new Date(),
       );
       // Staff can override round timing/limits (e.g. a forgotten dish), not the guests.
-      if (!check.ok && opts.source === "qr") throw new UserError(check.message);
+      if (!check.ok && opts.source !== "waiter") throw new UserError(check.message);
       if (check.ok && check.includedPieces > 0) {
         round = s.ayce!.rounds + 1;
         sessionPatch["ayce.rounds"] = round;
@@ -169,10 +170,10 @@ export async function createOrder(
   });
 
   if (result.status === "pending_approval") {
-    await notify(t, { type: "order_pending", title: `Tavolo ${label}: ordine da confermare`, tableId: null, urgent: true });
+    await notify(t, { type: "order_pending", title: `${placeLabel(label)}: ordine da confermare`, tableId: null, urgent: true });
     await refreshTableStatus(t, sessionId);
   } else {
-    await notify(t, { type: "new_order", title: `Nuovo ordine · Tavolo ${label}` });
+    await notify(t, { type: "new_order", title: `Nuovo ordine · ${placeLabel(label)}` });
     const c = created as (Omit<Order, "id"> & { id: string }) | null;
     if (c) {
       await printOrderItems(tenant, c, c.items.filter((i) => i.status === "new"));
@@ -186,6 +187,7 @@ export async function approveOrder(tenantId: string, orderId: string, actor: Act
   let sessionId = "";
   let label = "";
   let approved: Order | null = null;
+  let closeTakeaway = false;
   await db().runTransaction(async (tx) => {
     const ref = refs.orders(tenantId).doc(orderId);
     const o = (await tx.get(ref)).data() as Order | undefined;
@@ -195,17 +197,25 @@ export async function approveOrder(tenantId: string, orderId: string, actor: Act
     sessionId = o.tableSessionId;
     label = o.tableLabel;
     const sRef = refs.tableSessions(tenantId).doc(o.tableSessionId);
+    // Keep the takeaway status in sync when approved from the orders board.
+    const tk = (await tx.get(sRef)).get("takeaway.status") as string | undefined;
     if (approve) {
       tx.update(ref, { status: "sent", approvedBy: actor.id, sentAt: nowIso() });
-      tx.update(sRef, { firstOrderApproved: true });
+      tx.update(sRef, { firstOrderApproved: true, ...(tk === "pending" ? { "takeaway.status": "accepted", "takeaway.acceptedAt": nowIso() } : {}) });
     } else {
       tx.update(ref, { status: "rejected", approvedBy: actor.id });
-      tx.update(sRef, { totalCents: FieldValue.increment(-o.totalCents) });
+      tx.update(sRef, { totalCents: FieldValue.increment(-o.totalCents), ...(tk === "pending" ? { "takeaway.status": "rejected" } : {}) });
+      closeTakeaway = tk === "pending";
     }
   });
+  if (closeTakeaway) {
+    const tenant = await getTenant(tenantId);
+    if (tenant) await closeSession(tenant, sessionId);
+    return;
+  }
   await refreshTableStatus(tenantId, sessionId);
   if (approve) {
-    await notify(tenantId, { type: "new_order", title: `Nuovo ordine · Tavolo ${label}` });
+    await notify(tenantId, { type: "new_order", title: `Nuovo ordine · ${placeLabel(label)}` });
     const tenant = await getTenant(tenantId);
     const a = approved as Order | null;
     if (tenant && a) {
@@ -244,7 +254,7 @@ export async function cancelItem(tenantId: string, orderId: string, itemId: stri
       tx.update(refs.tableSessions(tenantId).doc(o.tableSessionId), patch);
     }
   });
-  await notify(tenantId, { type: "message", title: `Annullato: ${name} · Tavolo ${label}`, body: reason, departmentId, urgent: true });
+  await notify(tenantId, { type: "message", title: `Annullato: ${name} · ${placeLabel(label)}`, body: reason, departmentId, urgent: true });
   const pr = printable as { order: Order; item: OrderItem } | null;
   if (pr) {
     const tenant = await getTenant(tenantId);

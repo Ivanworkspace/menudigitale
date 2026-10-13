@@ -9,6 +9,7 @@ import type { LoyaltyConfig } from "@/domain/loyalty";
 import type { Customer } from "@/server/customers";
 import { anonymize, redeem } from "../actions";
 import { CustomerModal } from "../customer-form";
+import { shortPlaceLabel } from "@/domain/takeaway";
 
 export function CustomerDetail({
   token,
@@ -75,7 +76,7 @@ export function CustomerDetail({
           <ul className="divide-y divide-slate-100 text-sm">
             {bills.map((b) => (
               <li key={b.id} className="flex justify-between px-5 py-2">
-                <span>{formatDateTime(b.date)} · Tav. {b.table}</span>
+                <span>{formatDateTime(b.date)} · {shortPlaceLabel(b.table)}</span>
                 <span className="tabular-nums">{formatEuro(b.total)}</span>
               </li>
             ))}

@@ -60,6 +60,7 @@ export type PublicMenu = {
     brandName: string;
     hasPrivacy: boolean;
     bookingEnabled: boolean;
+    takeawayEnabled: boolean;
   };
   lang: string;
   languages: string[];
@@ -174,6 +175,7 @@ export function buildPublicMenu(
       brandName: opts.brandName ?? publicEnv.brandName,
       hasPrivacy: !!t.settings.privacyText,
       bookingEnabled: t.modules.reservations && !!t.settings.reservations?.onlineEnabled,
+      takeawayEnabled: !!t.modules.takeaway && !!t.settings.takeaway?.enabled,
     },
     lang,
     languages,

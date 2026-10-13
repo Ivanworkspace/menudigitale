@@ -25,7 +25,7 @@ function lockedMessage(s: LockoutState) {
  */
 type PickedStaff = { id: string; role: string; displayName: string };
 
-async function pinLogin(token: string, pin: string, pickStaff: (tenantId: string) => Promise<PickedStaff | null>) {
+async function pinLogin(token: string, pin: string, pickStaff: (tenantId: string) => Promise<PickedStaff | null>, landing: "dashboard" | "titolare" = "dashboard") {
   if (!/^\d{4,8}$/.test(pin)) return GENERIC;
   const tenant = await resolveTenantByToken(token);
   if (!tenant) return GENERIC;
@@ -69,15 +69,15 @@ async function pinLogin(token: string, pin: string, pickStaff: (tenantId: string
     kind: staff.role === "owner" ? "owner" : "staff",
   });
   await logTenantAction(tenant.id, { kind: "staff", id: staff.id, name: staff.displayName }, "auth.login");
-  redirect(`/g/${token}/dashboard`);
+  redirect(`/g/${token}/${landing}`);
 }
 
-export async function loginOwner(token: string, pin: string): Promise<string | null> {
+export async function loginOwner(token: string, pin: string, landing: "dashboard" | "titolare" = "dashboard"): Promise<string | null> {
   return pinLogin(token, pin, async (tenantId) => {
     const snap = await refs.staff(tenantId).where("role", "==", "owner").where("active", "==", true).limit(1).get();
     const d = snap.docs[0];
     return d ? { id: d.id, role: "owner", displayName: d.get("displayName") } : null;
-  });
+  }, landing === "titolare" ? "titolare" : "dashboard");
 }
 
 export async function loginStaff(token: string, staffId: string, pin: string): Promise<string | null> {

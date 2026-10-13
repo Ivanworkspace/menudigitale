@@ -10,6 +10,7 @@ export default async function SettingsLayout({ children, params }: { children: R
     { href: base, label: "Locale e orari", exact: true },
     { href: `${base}/menu`, label: "Menu e lingue" },
     ...(ctx.modules.orders ? [{ href: `${base}/ordini`, label: "Ordini e AYCE" }] : []),
+    ...(ctx.modules.takeaway ? [{ href: `${base}/asporto`, label: "Asporto" }] : []),
     { href: `${base}/aspetto`, label: "Aspetto" },
     { href: `${base}/reparti`, label: "Reparti" },
     { href: `${base}/stampanti`, label: "Stampanti" },

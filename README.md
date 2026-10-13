@@ -57,7 +57,11 @@ npx firebase deploy --only firestore:rules,firestore:indexes,storage --project <
 ### Vercel
 1. Importa il repository, framework Next.js.
 2. Imposta tutte le variabili di `.env.example` (senza quelle degli emulatori), con `NEXT_PUBLIC_APP_URL` = dominio.
-3. I cron in `vercel.json` girano da soli: scadenze abbonamenti (ogni mattina) e backup Firestore (ogni notte).
+3. I cron in `vercel.json` girano da soli: scadenze abbonamenti (ogni mattina), backup Firestore (ogni notte) e
+   riepilogo push del giorno prima per i titolari (ogni mattina).
+4. Notifiche push dell'app titolare: genera le chiavi una volta con `npx web-push generate-vapid-keys` e imposta
+   `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`mailto:` tuo). Non cambiarle più: i
+   dispositivi già iscritti smetterebbero di ricevere notifiche.
 
 ### Backup
 - **Automatico:** `/api/cron/backup` esporta ogni notte l'intero Firestore in `BACKUP_BUCKET`

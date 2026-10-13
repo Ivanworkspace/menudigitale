@@ -2,15 +2,18 @@ import { NextResponse } from "next/server";
 import { resolveTenantByToken } from "@/server/tenancy/resolve";
 
 /** Per-venue PWA manifest: installs the staff panel on tablets/phones. */
-export async function GET(_req: Request, { params }: { params: Promise<{ token: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const tenant = await resolveTenantByToken(token);
   if (!tenant) return new NextResponse("Not found", { status: 404 });
+  // ?app=titolare: the owner app (opens on the owner dashboard after the PIN).
+  const owner = new URL(req.url).searchParams.get("app") === "titolare";
   return NextResponse.json(
     {
-      name: `${tenant.displayName} · Gestione`,
-      short_name: tenant.displayName.slice(0, 12),
-      start_url: `/g/${token}/staff`,
+      id: owner ? `/g/${token}/titolare` : `/g/${token}/staff`,
+      name: owner ? `${tenant.displayName} · Titolare` : `${tenant.displayName} · Gestione`,
+      short_name: owner ? "Titolare" : tenant.displayName.slice(0, 12),
+      start_url: owner ? `/g/${token}?app=titolare` : `/g/${token}/staff`,
       scope: `/g/${token}/`,
       display: "standalone",
       orientation: "any",

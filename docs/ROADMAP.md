@@ -11,6 +11,13 @@
 | 7 | Prenotazioni, clienti e fidelity, magazzino | ✅ |
 | 8 | PWA e offline, backup, sicurezza, documentazione | ✅ |
 
+## Aggiunte dopo la fase 8
+
+- **Asporto:** ordini online con orario di ritiro, capienza per fascia, conferma manuale, stato per il cliente,
+  integrazione con cucina, stampa e cassa (pagamento al ritiro).
+- **App titolare:** schermata mobile installabile con incassi in tempo reale, confronti e avvisi; notifiche push
+  (Web Push/VAPID) per argomento e riepilogo giornaliero del mattino (cron `daily-summary`).
+
 ## Da completare / estensioni previste
 
 - **Registratori telematici (RT):** adattatori Epson FP-RT (XML già generato in `src/server/fiscal`) e Custom,

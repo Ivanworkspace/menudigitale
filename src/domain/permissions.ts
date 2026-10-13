@@ -67,8 +67,10 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "dashboard", label: "Panoramica", icon: "home" },
+  { href: "titolare", label: "App titolare", icon: "phone", permission: "revenue.view" },
   { href: "sala", label: "Sala e tavoli", icon: "grid", permission: "tables.manage" },
   { href: "ordini", label: "Ordini", icon: "receipt", module: "orders", permission: "orders.create" },
+  { href: "asporto", label: "Asporto", icon: "bag", module: "takeaway", permission: "orders.approve" },
   { href: "cucina", label: "Cucina e bar", icon: "flame", module: "kds", permission: "kds.view" },
   { href: "conti", label: "Conti e cassa", icon: "wallet", module: "billing", permission: "bills.manage" },
   { href: "menu", label: "Menu", icon: "book", permission: "menu.edit" },

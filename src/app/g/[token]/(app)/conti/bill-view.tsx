@@ -13,6 +13,7 @@ import { cn } from "@/lib/cn";
 import { formatEuro, parseEuroToCents } from "@/lib/format";
 import { cashChange, paidCents, PAYMENT_LABELS, type PaymentMethod } from "@/domain/billing";
 import type { Bill } from "@/server/billing/service";
+import { placeLabel } from "@/domain/takeaway";
 import {
   applyAdjustment,
   deleteAdjustment,
@@ -88,7 +89,7 @@ export function BillView({
         <div>
           <Link href={`${basePath}/conti`} className="text-sm text-slate-500 hover:underline">← Tutti i tavoli</Link>
           <h1 className="text-2xl font-bold">
-            Conto · Tavolo {bill.tableLabel} {bill.number ? <span className="text-slate-400">#{bill.number}</span> : null}
+            Conto · {placeLabel(bill.tableLabel)} {bill.number ? <span className="text-slate-400">#{bill.number}</span> : null}
           </h1>
         </div>
         <div className="flex flex-wrap gap-2">

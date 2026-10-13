@@ -11,7 +11,7 @@ import { seedDemoContent } from "./seed-content";
 
 const DEMO_SLUG = "pizzeria-da-mario";
 const ARGON = { memoryCost: 19456, timeCost: 2, parallelism: 1 };
-const ALL_MODULES = ["orders", "kds", "billing", "payments", "reservations", "loyalty", "inventory", "advanced_stats", "multilang"];
+const ALL_MODULES = ["orders", "kds", "billing", "payments", "reservations", "loyalty", "inventory", "advanced_stats", "multilang", "takeaway"];
 
 const PLANS = [
   {
@@ -128,6 +128,15 @@ async function main() {
       privacyText: null,
       cookieText: null,
       frozenNote: { it: "* Prodotto surgelato o abbattuto all'origine", en: "* Frozen or blast-chilled product", de: "* Tiefgekühltes Produkt" },
+      takeaway: {
+        enabled: true,
+        windows: [
+          { weekdays: [1, 2, 3, 4, 5, 6, 7], from: "11:30", to: "14:30" },
+          { weekdays: [1, 2, 3, 4, 5, 6, 7], from: "18:30", to: "23:30" },
+        ],
+        slotMinutes: 15, leadMinutes: 20, maxOrdersPerSlot: 4, manualAccept: true,
+        minOrderCents: 0, menuId: null, note: "Pagamento al ritiro, in contanti o con carta.",
+      },
     },
     stats: { ordersThisMonth: 0, ordersMonth: now.slice(0, 7) },
   });

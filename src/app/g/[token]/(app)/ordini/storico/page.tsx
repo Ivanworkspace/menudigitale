@@ -10,6 +10,7 @@ import { tr } from "@/domain/menu";
 import { averagePrepMinutes } from "@/domain/kds";
 import { ITEM_STATUS_LABELS, orderProgress, type Order } from "@/domain/orders";
 import { cn } from "@/lib/cn";
+import { placeLabel, shortPlaceLabel } from "@/domain/takeaway";
 
 export const metadata = { title: "Storico comande" };
 
@@ -72,7 +73,7 @@ export default async function OrdersHistoryPage({
             <Card key={o.id} className="p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                 <span className="font-semibold">
-                  Tavolo {o.tableLabel} · {new Date(o.createdAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" })}
+                  {placeLabel(o.tableLabel)} · {new Date(o.createdAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" })}
                 </span>
                 <span className="flex items-center gap-2 text-xs text-slate-500">
                   {o.source === "qr" ? "📱 QR" : `👤 ${o.createdByName}`}
@@ -117,7 +118,7 @@ export default async function OrdersHistoryPage({
               {cancelled.map(({ o, i }) => (
                 <li key={i.id} className="px-5 py-2">
                   <p>
-                    Tav. {o.tableLabel} · {i.qty}× {tr(i.name, "it")}
+                    {shortPlaceLabel(o.tableLabel)} · {i.qty}× {tr(i.name, "it")}
                   </p>
                   <p className="text-xs text-slate-500">
                     {i.cancelReason} · {i.cancelledBy}

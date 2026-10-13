@@ -1,6 +1,6 @@
 export const MODULE_KEYS = [
   "orders", "kds", "billing", "payments", "reservations",
-  "loyalty", "inventory", "advanced_stats", "multilang",
+  "loyalty", "inventory", "advanced_stats", "multilang", "takeaway",
 ] as const;
 export type ModuleKey = (typeof MODULE_KEYS)[number];
 
@@ -14,6 +14,7 @@ export const MODULE_LABELS: Record<ModuleKey, { label: string; description: stri
   inventory: { label: "Magazzino", description: "Ingredienti, ricette, scorte, esaurimento automatico" },
   advanced_stats: { label: "Statistiche avanzate", description: "Analisi, confronti, export" },
   multilang: { label: "Multilingua", description: "Menu in più lingue con traduzione assistita" },
+  takeaway: { label: "Asporto", description: "Ordini online da ritirare, con orario di ritiro e pagamento al ritiro" },
 };
 
 export type ModuleFlags = Record<ModuleKey, boolean>;

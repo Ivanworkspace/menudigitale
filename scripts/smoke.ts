@@ -19,7 +19,7 @@ async function main() {
   const cust = (await db.collection("tenants").doc(tenantId).collection("customers").limit(1).get()).docs[0];
   const base = `http://localhost:3000/g/${token}`;
   const pages = [
-    "dashboard", "sala", "ordini", "ordini/nuovo", "ordini/storico", "cucina", "conti", "menu", "menu/categorie", "menu/varianti",
+    "dashboard", "titolare", "asporto", "impostazioni/asporto", "sala", "ordini", "ordini/nuovo", "ordini/storico", "cucina", "conti", "menu", "menu/categorie", "menu/varianti",
     "menu/listini", "menu/import", "menu/qr", `menu/prodotti/${product.id}`, "menu/prodotti/nuovo", "disponibilita", "prenotazioni",
     "prenotazioni/impostazioni", "clienti", `clienti/${cust.id}`, "clienti/fidelity", "clienti/promozioni", "magazzino",
     "magazzino/ricette", "magazzino/movimenti", "statistiche", "statistiche?periodo=30g", "personale", "registro", "impostazioni",
@@ -34,7 +34,7 @@ async function main() {
     if (bad) fail++;
     console.log(bad ? "✗" : "✓", res.status, p);
   }
-  for (const p of [`/m/${slug}`, `/m/${slug}?lang=en`, `/m/${slug}/t/${table.get("qrToken")}`, `/m/${slug}/prenota`, `/m/${slug}/privacy`, "/superadmin/login"]) {
+  for (const p of [`/m/${slug}`, `/m/${slug}?lang=en`, `/m/${slug}/t/${table.get("qrToken")}`, `/m/${slug}/prenota`, `/m/${slug}/asporto`, `/m/${slug}/privacy`, "/superadmin/login"]) {
     const res = await fetch(`http://localhost:3000${p}`);
     const bad = res.status !== 200;
     if (bad) fail++;

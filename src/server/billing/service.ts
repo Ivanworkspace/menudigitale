@@ -6,6 +6,7 @@ import { closeSession, getSession } from "@/server/sala/service";
 import { computeBill, equalSplit, paidCents, selectionAmount, type Adjustment, type BillLine, type BillTotals, type Payment, type PaymentMethod } from "@/domain/billing";
 import { tr } from "@/domain/menu";
 import type { Order, TableSession } from "@/domain/orders";
+import { onTakeawayBillClosed } from "@/server/takeaway";
 import type { Tenant } from "@/server/db/types";
 import { creditBillToCustomer } from "@/server/customers";
 import { checkPromotion, type Promotion } from "@/domain/loyalty";
@@ -110,7 +111,7 @@ export async function openBill(tenant: Tenant, sessionId: string): Promise<Bill>
     tableSessionId: sessionId,
     status: "open" as const,
     coverChargeCents: isAyce ? 0 : tenant.settings.coverChargeCents,
-    servicePctBp: tenant.settings.servicePctBp,
+    servicePctBp: session.takeaway ? 0 : tenant.settings.servicePctBp,
     adjustments: [] as Adjustment[],
     parts: [] as BillPart[],
     payments: [] as Payment[],
@@ -258,6 +259,7 @@ export async function closeBill(tenant: Tenant, billId: string, actorName: strin
     if (b.customerId) credit = { customerId: b.customerId, total: totals.totalCents };
   });
   const session = withId<TableSession>(await refs.tableSessions(t).doc(sessionId).get());
+  if (session?.takeaway) await onTakeawayBillClosed(t, sessionId);
   if (session && session.status !== "closed") await closeSession(tenant, sessionId);
   await refs.tenant(t).update({ lastActivityAt: nowIso(), "stats.billsClosed": FieldValue.increment(1) });
   const c = credit as { customerId: string; total: number } | null;

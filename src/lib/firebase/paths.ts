@@ -37,6 +37,8 @@ export const COL = {
   tenants: "tenants",
   tableTokens: "table_tokens",
   printKeys: "print_keys",
+  takeawayTokens: "takeaway_tokens",
+  pushSubscriptions: "push_subscriptions",
 } as const;
 
 export const SUB = {

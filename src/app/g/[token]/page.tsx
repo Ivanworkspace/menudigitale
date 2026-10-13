@@ -4,9 +4,10 @@ import { getStaffContext } from "@/server/auth/staff-session";
 import { assetUrl } from "@/lib/assets";
 import { OwnerLogin } from "./owner-login";
 
-export default async function OwnerLoginPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function OwnerLoginPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ app?: string }> }) {
   const { token } = await params;
-  if (await getStaffContext(token)) redirect(`/g/${token}/dashboard`);
+  const ownerApp = (await searchParams).app === "titolare";
+  if (await getStaffContext(token)) redirect(`/g/${token}/${ownerApp ? "titolare" : "dashboard"}`);
   const tenant = (await resolveTenantByToken(token))!;
-  return <OwnerLogin token={token} name={tenant.displayName} logoUrl={assetUrl(tenant.branding.logoPath)} />;
+  return <OwnerLogin token={token} name={tenant.displayName} logoUrl={assetUrl(tenant.branding.logoPath)} ownerApp={ownerApp} />;
 }
